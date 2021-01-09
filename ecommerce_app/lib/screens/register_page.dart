@@ -1,48 +1,47 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app/screens/register_page.dart';
 import 'package:flutter_app/widgets/custom_btn.dart';
 import 'package:flutter_app/widgets/custom_input.dart';
 
 import '../constants.dart';
 
-class LoginPage extends StatefulWidget {
+class RegisterPage extends StatefulWidget {
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _RegisterPageState createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
 
   //Build an alert dialog to display some errors.
   Future<void> _alertDialogueBuilder(String error) async {
     return showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) {
-          return AlertDialog(
-            title: Text("Error"),
-            content: Container(
-              child: Text(error),
-            ),
-            actions: [
-              FlatButton(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Error"),
+          content: Container(
+            child: Text(error),
+          ),
+          actions: [
+            FlatButton(
                 child: Text("Close Dialog"),
-                onPressed: () {
+              onPressed: () {
                   Navigator.pop(context);
-                },
-              )
-            ],
-          );
-        }
+              },
+            )
+          ],
+        );
+      }
     );
   }
 
   //Create a new user account
-  Future<String> _loginAccount() async {
+  Future<String> _createAccount() async {
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: _loginEmail,
-          password: _loginPassword
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: _registerEmail,
+          password: _registerPassword
       );
       return null;
     } on FirebaseAuthException catch(e) {
@@ -60,29 +59,32 @@ class _LoginPageState extends State<LoginPage> {
   void _submitForm() async {
     // Set the form to loading state
     setState(() {
-      _loginFormLoading = true;
+      _registerFormLoading = true;
     });
 
     //Run the created account method
-    String _loginFeedback = await _loginAccount();
+    String _createAccountFeedback = await _createAccount();
 
     // If the string is not null, we got an error when creating the account
-    if (_loginFeedback != null) {
-      _alertDialogueBuilder(_loginFeedback);
+    if (_createAccountFeedback != null) {
+      _alertDialogueBuilder(_createAccountFeedback);
 
       // Set the form to regular state (not loading)
       setState(() {
-        _loginFormLoading = false;
+        _registerFormLoading = false;
       });
+    } else {
+      //The string was null, user is logged in, rta7 m3a raask
+      Navigator.pop(context);
     }
   }
 
   //Default from login state
-  bool _loginFormLoading = false;
+  bool _registerFormLoading = false;
 
   //From Input fields values
-  String _loginEmail = "";
-  String _loginPassword = "";
+  String _registerEmail = "";
+  String _registerPassword = "";
 
   //Focus node for input fields
   FocusNode _passwordFocusNode;
@@ -112,7 +114,8 @@ class _LoginPageState extends State<LoginPage> {
                 padding: EdgeInsets.only(
                   top: 24.0,
                 ),
-                child: Text("Welcome User,\nlogin to your account!",
+                child: Text(
+                  "Create a new account",
                   textAlign: TextAlign.center,
                   style: Constants.boldHeading,
                 ),
@@ -122,7 +125,7 @@ class _LoginPageState extends State<LoginPage> {
                   CustomInput(
                     hintText: "Email...",
                     onChanged: (value) {
-                      _loginEmail = (value);
+                      _registerEmail = (value);
                     },
                     onSubmitted: (value) {
                       _passwordFocusNode.requestFocus();
@@ -132,7 +135,7 @@ class _LoginPageState extends State<LoginPage> {
                   CustomInput(
                     hintText: "Password...",
                     onChanged: (value) {
-                      _loginPassword = (value);
+                      _registerPassword = (value);
                     },
                     focusNode: _passwordFocusNode,
                     isPasswordField: true,
@@ -141,11 +144,11 @@ class _LoginPageState extends State<LoginPage> {
                     },
                   ),
                   CustomBtn(
-                    text: "Login to your account",
+                    text: "Create your account",
                     onPressed: () {
                       _submitForm();
                     },
-                    isLoading: _loginFormLoading,
+                    isLoading: _registerFormLoading,
                   )
                 ],
               ),
@@ -154,14 +157,9 @@ class _LoginPageState extends State<LoginPage> {
                   bottom: 16.0,
                 ),
                 child: CustomBtn(
-                  text: "Create your new account",
+                  text: "Back to login",
                   onPressed: (){
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => RegisterPage()
-                      ),
-                    );
+                    Navigator.pop(context);
                   },
                   outlineBtn: true,
                 ),
@@ -170,6 +168,6 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       ),
-    );
+    );;
   }
 }
