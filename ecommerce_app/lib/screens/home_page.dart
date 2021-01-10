@@ -1,6 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/constants.dart';
+import 'package:flutter_app/tabs/home_tabs.dart';
+import 'package:flutter_app/tabs/saved_tab.dart';
+import 'package:flutter_app/tabs/search_tab.dart';
 import 'package:flutter_app/widgets/bottom_tabs.dart';
 
 class HomePage extends StatefulWidget {
@@ -40,21 +43,9 @@ class _HomePageState extends State<HomePage> {
                   });
                 },
                 children: [
-                  Container(
-                    child: Center(
-                      child: Text("Home Page"),
-                    ),
-                  ),
-                  Container(
-                    child: Center(
-                      child: Text("Search Page"),
-                    ),
-                  ),
-                  Container(
-                    child: Center(
-                      child: Text("Saved page"),
-                    ),
-                  ),
+                  HomeTab(),
+                  SearchTab(),
+                  SavedTab(),
                 ],
               ),
             ),
