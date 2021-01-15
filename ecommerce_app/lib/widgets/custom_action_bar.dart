@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/constants.dart';
+import 'package:flutter_app/screens/card_page.dart';
+import 'package:flutter_app/services/firebase_services.dart';
 
 class CustomActionBar extends StatelessWidget {
   final String title;
@@ -10,17 +12,17 @@ class CustomActionBar extends StatelessWidget {
   final bool hasBackground;
   CustomActionBar({this.hasBackArrow, this.title, this.hasTitle, this.hasBackground});
 
+  FirebaseServices _firebaseServices = FirebaseServices();
+
+  final CollectionReference _usersRef = FirebaseFirestore
+      .instance
+      .collection("Users");
+
   @override
   Widget build(BuildContext context) {
     bool _hasBackArrow = hasBackArrow ?? false;
     bool _hasTitle =  hasTitle ?? true;
     bool _hasBackground = hasBackground ?? true;
-
-    final CollectionReference _usersRef = FirebaseFirestore
-        .instance
-        .collection("Users");
-
-    User _user = FirebaseAuth.instance.currentUser;
 
     return Container(
       decoration: BoxDecoration(
@@ -70,33 +72,40 @@ class CustomActionBar extends StatelessWidget {
             title ?? "Action Bar",
             style: Constants.boldHeading,
           ),
-          Container(
-            width: 42.0,
-            height: 42.0,
-            decoration: BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-            alignment: Alignment.center,
-            child: StreamBuilder(
-              stream: _usersRef.doc(_user.uid).collection("Card").snapshots(),
-              builder: (context, snapshot) {
-                int _totalItems = 0;
+          GestureDetector(
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(
+                builder: (context) => CardPage(),
+              ));
+            },
+            child: Container(
+              width: 42.0,
+              height: 42.0,
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              alignment: Alignment.center,
+              child: StreamBuilder(
+                stream: _usersRef.doc(_firebaseServices.getUserId()).collection("Card").snapshots(),
+                builder: (context, snapshot) {
+                  int _totalItems = 0;
 
-                if(snapshot.connectionState == ConnectionState.active){
-                  List _documents = snapshot.data.docs;
-                  _totalItems = _documents.length;
-                }
+                  if(snapshot.connectionState == ConnectionState.active){
+                    List _documents = snapshot.data.docs;
+                    _totalItems = _documents.length;
+                  }
 
-                return Text(
-                  "$_totalItems" ?? "0",
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                );
-              },
+                  return Text(
+                    "$_totalItems" ?? "0",
+                    style: TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  );
+                },
+              ),
             ),
           )
         ],

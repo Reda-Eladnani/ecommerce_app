@@ -4,20 +4,23 @@ import 'package:flutter_app/screens/product_page.dart';
 import 'package:flutter_app/services/firebase_services.dart';
 import 'package:flutter_app/widgets/custom_action_bar.dart';
 
-class SavedTab extends StatelessWidget {
+class CardPage extends StatefulWidget {
+  @override
+  _CardPageState createState() => _CardPageState();
+}
 
-  final FirebaseServices _firebaseServices = FirebaseServices();
+class _CardPageState extends State<CardPage> {
+
+  FirebaseServices _firebaseServices = FirebaseServices();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Stack(
+    return Scaffold(
+      body: Stack(
         children: [
           FutureBuilder<QuerySnapshot>(
-            future: _firebaseServices.usersRef
-                .doc(_firebaseServices.getUserId())
-                .collection("Saved")
-                .get(),
+            future: _firebaseServices.usersRef.doc(_firebaseServices.getUserId())
+                .collection("Card").get(),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
                 return Scaffold(
@@ -38,20 +41,14 @@ class SavedTab extends StatelessWidget {
                   children: snapshot.data.docs.map((document) {
                     return GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ProductPage(
-                                productId: document.id,
-                              ),
-                            ));
+                        Navigator.push(context, MaterialPageRoute(
+                          builder: (context) => ProductPage(productId: document.id,),
+                        ));
                       },
                       child: FutureBuilder(
-                        future: _firebaseServices.productsRef
-                            .doc(document.id)
-                            .get(),
+                        future: _firebaseServices.productsRef.doc(document.id).get(),
                         builder: (context, productSnap) {
-                          if (productSnap.hasError) {
+                          if(productSnap.hasError) {
                             return Container(
                               child: Center(
                                 child: Text("${productSnap.error}"),
@@ -59,8 +56,7 @@ class SavedTab extends StatelessWidget {
                             );
                           }
 
-                          if (productSnap.connectionState ==
-                              ConnectionState.done) {
+                          if(productSnap.connectionState == ConnectionState.done) {
                             Map _productMap = productSnap.data.data();
 
                             return Padding(
@@ -69,13 +65,15 @@ class SavedTab extends StatelessWidget {
                                 horizontal: 24.0,
                               ),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
+                                mainAxisAlignment:
+                                MainAxisAlignment.start,
                                 children: [
                                   Container(
                                     width: 90,
                                     height: 90,
                                     child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(8.0),
+                                      borderRadius:
+                                      BorderRadius.circular(8.0),
                                       child: Image.network(
                                         "${_productMap['image'][0]}",
                                         fit: BoxFit.cover,
@@ -97,10 +95,12 @@ class SavedTab extends StatelessWidget {
                                           style: TextStyle(
                                               fontSize: 18.0,
                                               color: Colors.black,
-                                              fontWeight: FontWeight.w600),
+                                              fontWeight:
+                                              FontWeight.w600),
                                         ),
                                         Padding(
-                                          padding: const EdgeInsets.symmetric(
+                                          padding: const EdgeInsets
+                                              .symmetric(
                                             vertical: 4.0,
                                           ),
                                           child: Text(
@@ -109,7 +109,8 @@ class SavedTab extends StatelessWidget {
                                                 fontSize: 16.0,
                                                 color: Theme.of(context)
                                                     .accentColor,
-                                                fontWeight: FontWeight.w600),
+                                                fontWeight:
+                                                FontWeight.w600),
                                           ),
                                         ),
                                         Text(
@@ -117,7 +118,8 @@ class SavedTab extends StatelessWidget {
                                           style: TextStyle(
                                               fontSize: 16.0,
                                               color: Colors.black,
-                                              fontWeight: FontWeight.w600),
+                                              fontWeight:
+                                              FontWeight.w600),
                                         ),
                                       ],
                                     ),
@@ -125,6 +127,7 @@ class SavedTab extends StatelessWidget {
                                 ],
                               ),
                             );
+
                           }
 
                           return Container(
@@ -148,9 +151,9 @@ class SavedTab extends StatelessWidget {
             },
           ),
           CustomActionBar(
-            title: "Saved",
-            hasBackArrow: false,
-          ),
+            hasBackArrow: true,
+            title: "Card",
+          )
         ],
       ),
     );

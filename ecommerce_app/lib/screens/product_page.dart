@@ -1,7 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/constants.dart';
+import 'package:flutter_app/services/firebase_services.dart';
 import 'package:flutter_app/widgets/custom_action_bar.dart';
 import 'package:flutter_app/widgets/image_swipe.dart';
 import 'package:flutter_app/widgets/product_size.dart';
@@ -15,27 +14,30 @@ class ProductPage extends StatefulWidget {
 }
 
 class _ProductPageState extends State<ProductPage> {
-  final CollectionReference _productsRef =
-    FirebaseFirestore.instance.collection("Products");
-
-  final CollectionReference _usersRef = FirebaseFirestore
-      .instance
-      .collection(
-      "Users");
-
-  User _user = FirebaseAuth.instance.currentUser;
-
+  FirebaseServices _firebaseServices = FirebaseServices();
   String _selectedProductSize = "0";
 
   Future _addToCard() {
-    return _usersRef
-        .doc(_user.uid)
+    return _firebaseServices.usersRef
+        .doc(_firebaseServices.getUserId())
         .collection("Card")
         .doc(widget.productId)
         .set(
       {
         "size": _selectedProductSize
       }
+    );
+  }
+
+  Future _addToSaved() {
+    return _firebaseServices.usersRef
+        .doc(_firebaseServices.getUserId())
+        .collection("Saved")
+        .doc(widget.productId)
+        .set(
+        {
+          "size": _selectedProductSize
+        }
     );
   }
 
@@ -47,7 +49,7 @@ class _ProductPageState extends State<ProductPage> {
       body: Stack(
         children: [
           FutureBuilder(
-            future: _productsRef.doc(widget.productId).get(),
+            future: _firebaseServices.productsRef.doc(widget.productId).get(),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
                 return Scaffold(
@@ -65,25 +67,16 @@ class _ProductPageState extends State<ProductPage> {
                 List imageList = documentData['image'];
                 List productSize = documentData['size'];
 
+                // Set an initial size
+                _selectedProductSize = productSize[0];
+
                 return ListView(
                   padding: EdgeInsets.all(0),
                   children: [
                     ImageSwipe(
                       imageList: imageList,
                     ),
-                    // Container(
-                    //   height: 400.0,
-                    //   child: PageView(
-                    //     children: [
-                    //       Container(
-                    //         child: Image.network(
-                    //             "${documentData['image']}",
-                    //           fit: BoxFit.cover,
-                    //         ),
-                    //       ),
-                    //     ],
-                    //   ),
-                    // ),
+
                     Padding(
                       padding: const EdgeInsets.only(
                         top: 24.0,
@@ -143,20 +136,26 @@ class _ProductPageState extends State<ProductPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Container(
-                            width: 65.0,
-                            height: 65.0,
-                            decoration: BoxDecoration(
-                              color: Color(0xFFDCDCDC),
-                              borderRadius: BorderRadius.circular(12.0),
-                            ),
-                            alignment: Alignment.center,
-                            child: Image(
-                              image: AssetImage(
-                                "assets/images/tab_saved.png",
+                          GestureDetector(
+                            onTap: () async {
+                              await _addToSaved();
+                              Scaffold.of(context).showSnackBar(_snackBar);
+                            },
+                            child: Container(
+                              width: 65.0,
+                              height: 65.0,
+                              decoration: BoxDecoration(
+                                color: Color(0xFFDCDCDC),
+                                borderRadius: BorderRadius.circular(12.0),
                               ),
-                              //width: 13.0,
-                              height: 22.0,
+                              alignment: Alignment.center,
+                              child: Image(
+                                image: AssetImage(
+                                  "assets/images/tab_saved.png",
+                                ),
+                                //width: 13.0,
+                                height: 22.0,
+                              ),
                             ),
                           ),
                           Expanded(

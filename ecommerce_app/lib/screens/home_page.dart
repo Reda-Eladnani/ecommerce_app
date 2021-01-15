@@ -1,6 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app/constants.dart';
+import 'package:flutter_app/services/firebase_services.dart';
 import 'package:flutter_app/tabs/home_tabs.dart';
 import 'package:flutter_app/tabs/saved_tab.dart';
 import 'package:flutter_app/tabs/search_tab.dart';
@@ -12,6 +11,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  FirebaseServices _firebaseServices = FirebaseServices();
 
   PageController _tabsPageController;
   int _selectedTab = 0;
